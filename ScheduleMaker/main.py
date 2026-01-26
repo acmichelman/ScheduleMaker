@@ -34,6 +34,8 @@ def init_db():
                 LastName  TEXT NOT NULL COLLATE NOCASE,
                 EmployeeRank       TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                DatePromoted       TEXT,
+                EvaluationScore INTEGER NOT NULL DEFAULT 3,
                 UNIQUE(FirstName, LastName)  -- prevents duplicates
             );
         """)

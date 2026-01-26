@@ -3,6 +3,7 @@ import sys
 import lifeguard_list
 import add_lifeguard
 import remove_lifeguard
+import edit_employees
 import clear_screen
 
 def main_menu():
@@ -10,7 +11,7 @@ def main_menu():
     clear_screen.clear_screen()
     print("Welcome to the Lifeguard Schedule Maker.\n")
     print("Please type which menu to navigate to:\n")
-    print("Lifeguard List[1]\nAdd Lifeguard[2]\nRemove Lifeguard[3]\nQuit[4]\n")
+    print("Lifeguard List[1]\nAdd Lifeguard[2]\nRemove Lifeguard[3]\nEdit Lifeguard[4]\nQuit[5]\n")
 
     running = True
     while running:
@@ -22,7 +23,9 @@ def main_menu():
             add_lifeguard.add_lifeguard()
         elif ans.lower() == "remove lifeguard" or ans == "3":
             remove_lifeguard.remove_lifeguard()
-        elif ans.lower() == "quit" or ans == "4": 
+        elif ans.lower() == "edit lifeguard" or ans == "4":
+            edit_employees.edit_employee()
+        elif ans.lower() == "quit" or ans == "5": 
             clear_screen.clear_screen()
             print("Thank you for scheduling with us!")
             running = False
@@ -30,4 +33,4 @@ def main_menu():
         else:
             clear_screen.clear_screen()
             print("Please enter a valid option.\n")
-            print("Lifeguard List\nAdd Lifeguard\nRemove Lifeguard\nQuit\n")
+            print("Lifeguard List[1]\nAdd Lifeguard[2]\nRemove Lifeguard[3]\nEdit Lifeguard[4]\nQuit[5]\n")

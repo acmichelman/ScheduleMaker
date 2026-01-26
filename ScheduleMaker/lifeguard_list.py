@@ -10,7 +10,7 @@ def viewEmployeeList():
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
         # TODO: Should have different functions on differing ways to sort
-        cur.execute("""SELECT EmployeeID, FirstName, LastName, EmployeeRank
+        cur.execute("""SELECT EmployeeID, FirstName, LastName, EmployeeRank, DatePromoted, EvaluationScore
                     FROM Employees
                     ORDER BY LastName, FirstName
                     """)
@@ -19,11 +19,11 @@ def viewEmployeeList():
         if not rows: # TODO: Edge case. Should present option to add employee or something
             print("No employees added to database")
         else:
-            print("EmployeeID | First Name    Last Name| Rank")
+            print("EmployeeID | First Name    Last Name| Rank    | Date Promoted | Eval Score")
             print("-------------------------------------------")
-            for emp_id, first, last, rank in rows:
-                name = f"{last}, {first}"
-                print(f"{emp_id:<10} | {name:<18} | {rank}")
+            for emp_id, first, last, rank, promo_date, eval_date in rows:
+                name = f"{first}, {last}"
+                print(f"{emp_id:<10} | {name:<18} | {rank} | {promo_date} | {eval_date}")
 
         #con.close()
 
