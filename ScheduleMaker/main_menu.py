@@ -1,14 +1,8 @@
 import sys
 
-import lifeguard_list
-import add_lifeguard
-import remove_lifeguard
-import edit_employees
-import beach_list
-import add_beach
-import remove_beach
-import edit_beach
-import clear_screen
+from . import clear_screen
+from .EmployeesFiles import lifeguard_list, add_lifeguard, remove_lifeguard, edit_employees
+from .BeachFiles import beach_list, add_beach, remove_beach, edit_beach
 
 def main_menu():
     """Main menu loop."""

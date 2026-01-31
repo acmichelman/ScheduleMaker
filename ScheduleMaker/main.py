@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import clear_screen
-import main_menu
+from pathlib import Path
 import sqlite3
+
+from . import clear_screen
+from . import main_menu
+
+from .db import DB_PATH, ensure_db_dir
+
 
 """
 Project:    Schedule Maker
@@ -20,9 +25,9 @@ Example:
 License:    MIT License2
 """
 
-DB_PATH = "DatabaseFold/TOHLifeguardDB"
-
 def init_db():
+    ensure_db_dir()
+
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
         # Make names not case sensitive and enforce uniqueness on (FirstName, LastNname)

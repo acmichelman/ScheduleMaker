@@ -1,10 +1,10 @@
-import clear_screen
-import main_menu
+from pathlib import Path
 import sqlite3
-import edit_beach
-from datetime import datetime
 
-DB_PATH = "DatabaseFold/TOHLifeguardDB"
+from .. import clear_screen, main_menu
+from . import edit_beach
+
+DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
 
 def remove_beach_from_db(beach_name:str) -> bool:
     with sqlite3.connect(DB_PATH) as con:
