@@ -190,8 +190,10 @@ def edit_employee():
             print("Please enter employee LAST name: ")
             last_name = input().strip()
 
-            row = pick_employee_by_name(first_name, last_name)
-            edit_employee_info(row)
+            if first_name != "" or last_name != "":
+
+                row = pick_employee_by_name(first_name, last_name)
+                edit_employee_info(row)
 
             menu_options()
 

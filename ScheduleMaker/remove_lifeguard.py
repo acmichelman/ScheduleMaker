@@ -111,6 +111,7 @@ def removing_functionallity():
                 ans = remove_lifeguard_from_db(first_name_ans, last_name_ans, emp_id_ans)
                 break
             elif ans_correct_info == "no" or ans_correct_info == "n":
+                ans = 0
                 break
             else:
                 print("Please enter Yes or No (Y/N)")
