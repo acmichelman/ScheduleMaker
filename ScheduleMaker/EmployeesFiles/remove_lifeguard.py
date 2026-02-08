@@ -2,7 +2,7 @@ from pathlib import Path
 import sqlite3
 
 from .. import clear_screen, main_menu
-from . import lifeguard_list, edit_employees  # same-folder imports
+from . import lifeguard_list, edit_employees  #   same-folder imports
 
 DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
 
@@ -15,10 +15,10 @@ def remove_lifeguard_from_db(first_name: str, last_name: str, emp_id: int) -> bo
                     """, (first_name, last_name, emp_id))
         con.commit()
 
-        removed = cur.rowcount # To check how many removed  
+        removed = cur.rowcount #    To check how many removed  
         return removed
     
-    #For clarification we want this to return either first/last name (type str) or employee ID(type int) to be passed into remove func above
+    #   For clarification we want this to return either first/last name (type str) or employee ID(type int) to be passed into remove func above
 def validate_info(row, we_getting_a_id):
     employee_id_db, first_name_db, last_name_db, rank_db, time_added_db, date_promoted_db, eval_score_db = row[0]
     print("First name: ",first_name_db)
@@ -47,7 +47,7 @@ def removing_functionallity():
     first_name_ans = input().strip()
     print("Please enter employee's last name you wish to remove: ")
     last_name_ans = input().strip()
-    #This checks if just first/ last name has been entered
+    #   This checks if just first/ last name has been entered
     print("Please enter employee's ID in known: ")
     emp_id_ans = input().strip()
     if emp_id_ans == "":

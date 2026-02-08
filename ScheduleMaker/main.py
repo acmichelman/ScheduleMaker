@@ -17,7 +17,7 @@ Author:     Alexander Michelman
 Created:    10-21-2025
 Description:
     A schedule maker for Town OF Hempstead Ocean Lifeguards designed to take into account different beach staffing
-        needs, Jr Lifeguard instructors, special requests, experience, events, ect
+        needs.
 
 Example:
     $ python main.py
@@ -42,6 +42,7 @@ def init_db():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 DatePromoted       TEXT,
                 EvaluationScore INTEGER NOT NULL DEFAULT 3,
+                LastBeach       INTENGER,
                 UNIQUE(FirstName, LastName)  -- prevents duplicates
             );
         """)
