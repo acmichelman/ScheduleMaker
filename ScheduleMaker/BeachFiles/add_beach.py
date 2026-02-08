@@ -1,9 +1,10 @@
-import clear_screen
-import main_menu
+from pathlib import Path
 import sqlite3
 import logging
 
-DB_PATH = "DatabaseFold/TOHLifeguardDB"
+from .. import clear_screen, main_menu
+
+DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
 
 logging.basicConfig(
     filename='logging_info.log', 
@@ -103,7 +104,7 @@ def add_beach():
                     print("Invalid choice. Please enter 'True' or 't', 'False' or 'f': ")
             
             ans = add_beach_to_db(beach_name, beach_size, beach_activity, beach_open)
-            clear_screen.clear_screen
+            clear_screen.clear_screen()
 
             if ans == -1:
                 print(f"New Beach {beach_name} has been opened. Beach size: {beach_size}, Beach activity: {beach_activity}, Beach open: {beach_open}!")

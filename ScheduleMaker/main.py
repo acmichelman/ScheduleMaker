@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import clear_screen
-import main_menu
+from pathlib import Path
 import sqlite3
+
+from . import clear_screen
+from . import main_menu
+
+from .db import DB_PATH, ensure_db_dir
+
 
 """
 Project:    Schedule Maker
@@ -12,7 +17,7 @@ Author:     Alexander Michelman
 Created:    10-21-2025
 Description:
     A schedule maker for Town OF Hempstead Ocean Lifeguards designed to take into account different beach staffing
-        needs, Jr Lifeguard instructors, special requests, experience, events, ect
+        needs.
 
 Example:
     $ python main.py
@@ -20,9 +25,9 @@ Example:
 License:    MIT License2
 """
 
-DB_PATH = "DatabaseFold/TOHLifeguardDB"
-
 def init_db():
+    ensure_db_dir()
+
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
         # Make names not case sensitive and enforce uniqueness on (FirstName, LastNname)
@@ -37,6 +42,7 @@ def init_db():
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 DatePromoted       TEXT,
                 EvaluationScore INTEGER NOT NULL DEFAULT 3,
+                LastBeach       INTENGER,
                 UNIQUE(FirstName, LastName)  -- prevents duplicates
             );
         """)

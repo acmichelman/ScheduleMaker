@@ -1,9 +1,9 @@
-import clear_screen
-import main_menu
+from pathlib import Path
 import sqlite3
-import logging
 
-DB_PATH = "DatabaseFold/TOHLifeguardDB"
+from .. import clear_screen, main_menu
+
+DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
 
 def viewBeachList():
     with sqlite3.connect(DB_PATH) as con:
@@ -44,7 +44,7 @@ def beach_list():
             viewBeachList()
             menu_options()
         elif ans.lower() == "back" or ans == "2":
-            running == False
+            running = False
             main_menu.main_menu()
         else:
             print("Please pick a different option")

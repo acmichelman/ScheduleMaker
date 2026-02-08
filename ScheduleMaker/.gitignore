@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# Excel files
+*.xlsx
+
+# Database
+*.sqlite3

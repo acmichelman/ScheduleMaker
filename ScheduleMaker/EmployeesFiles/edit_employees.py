@@ -1,9 +1,10 @@
-import clear_screen
-import main_menu
+from pathlib import Path
 import sqlite3
 from datetime import datetime
 
-DB_PATH = "DatabaseFold/TOHLifeguardDB"
+from .. import clear_screen, main_menu
+
+DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
 
 def edit_employee_push_to_db(first_name: str, last_name: str, employee_rank: str, date_promoted: str, evaluation_score: int, employee_id: int):
     with sqlite3.connect(DB_PATH) as con:
@@ -30,11 +31,7 @@ def pick_employee_by_name(first_name: str, last_name: str):
                     """, (first_name, last_name))
     row = cur.fetchall()
 
-    if not row:
-        #print("No employee by that name")
-        return -1
-    else:
-        return(row)
+    return -1 if not row else row
 
 #   Func that searches by ID
 def pick_employee_by_id(id_num: int):
@@ -197,7 +194,7 @@ def edit_employee():
 
             menu_options()
 
-        elif ans.lower == "id" or ans == "2":
+        elif ans.lower() == "id" or ans == "2":
             print("id called")
 
             print("Please enter employee ID number: ")

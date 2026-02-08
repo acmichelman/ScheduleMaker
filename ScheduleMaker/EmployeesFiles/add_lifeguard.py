@@ -1,11 +1,13 @@
-import clear_screen
-import main_menu
+from pathlib import Path
 import re
 import sqlite3
 import logging
 from datetime import datetime
 
-DB_PATH = "DatabaseFold/TOHLifeguardDB"
+from .. import clear_screen, main_menu
+
+DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
+
 
 logging.basicConfig(
     filename='logging_info.log', 
@@ -34,8 +36,6 @@ def add_lifeguard_to_db(first_name: str, last_name: str, rank: str, date_promote
 
         # Checks if employee has already been added
         else:
-            first = first_name
-            last = last_name
             cur.execute("""SELECT EmployeeID FROM Employees
                         WHERE FirstName = ? AND LastName = ?
                         LIMIT 1;
@@ -83,7 +83,7 @@ def add_lifeguard():
                     elif rank == "lt":
                         rank = "lieutenant"
                     elif rank == "sl":
-                        rank == "senior lieutenant"
+                        rank = "senior lieutenant"
                     answered_rank = True
                 elif rank == "lifeguard" or rank == "senior guard" or rank == "lieutenant" or rank == "senior lieutenant":
                     answered_rank = True
@@ -118,7 +118,7 @@ def add_lifeguard():
             ans = add_lifeguard_to_db(first_name, last_name, rank, date_promoted, eval_score)
             clear_screen.clear_screen()
             if ans == -1:
-                print(f"New employee{first_name} {last_name} {rank} {date_promoted} {eval_score} has been added!")
+                print(f"New employee {first_name} {last_name} {rank} {date_promoted} {eval_score} has been added!")
             elif ans == 0: # TODO Currently not working as intended. Need edge case for when not new employee and not existing employee.
                 print("Employee failed to add. Please try again.")
             else:
