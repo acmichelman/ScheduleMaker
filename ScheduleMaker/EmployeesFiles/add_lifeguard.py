@@ -14,19 +14,19 @@ logging.basicConfig(
     level = logging.DEBUG,
     format='%(asctime)s:%(levelname)s:%(filename)s:%(funcName)s:%(message)s')
 
-# SQL Connect
-def add_lifeguard_to_db(first_name: str, last_name: str, rank: str, date_promoted: str, eval_score: int) -> bool:
+#   SQL Connect
+def add_lifeguard_to_db(first_name: str, last_name: str, rank: str, date_promoted: str, eval_score: int, can_schedule: int) -> bool:
 
-    #Returns True if a new row was inserted, False if the name already existed.
+    #   Returns True if a new row was inserted, False if the name already existed.
     
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
-        # This will try to insert. If the unique constraint is, it does nothing.
+        #   This will try to insert. If the unique constraint is, it does nothing.
         cur.execute("""INSERT INTO Employees 
-                    (FirstName, LastName, EmployeeRank, DatePromoted, EvaluationScore)
-                    VALUES (?, ?, ?, ?, ?)
+                    (FirstName, LastName, EmployeeRank, DatePromoted, EvaluationScore, CanSchedule)
+                    VALUES (?, ?, ?, ?, ?, ?)
                     ON CONFLICT(FirstName, LastName) DO NOTHING;
-                    """, (first_name, last_name, rank, date_promoted, eval_score))
+                    """, (first_name, last_name, rank, date_promoted, eval_score, can_schedule))
         con.commit()
         if cur.rowcount == 1:
             return -1 # SQLite Autoincrement will assign a # between 1 - 9223372036854775807. So -1 will be our indication that its a new value cause 0 is if its false.
@@ -34,7 +34,7 @@ def add_lifeguard_to_db(first_name: str, last_name: str, rank: str, date_promote
         #elif cur.rowcount == 0: #!!! It will return 0 if it doesnt add employee or find a match. !!!
         #    return 0
 
-        # Checks if employee has already been added
+        #   Checks if employee has already been added
         else:
             cur.execute("""SELECT EmployeeID FROM Employees
                         WHERE FirstName = ? AND LastName = ?
@@ -63,7 +63,7 @@ def add_lifeguard():
         ans = input("> ").strip()
 
         if ans.lower() == "add" or ans == "1":
-            print("Please enter employee 'First Name', 'Last Name', 'Rank', 'Date promoted if employee is a promoted guard', 'Evaluation Score'")
+            print("Please enter employee 'First Name', 'Last Name', 'Rank', 'Date promoted if employee is a promoted guard', 'Evaluation Score', and 'If the employee can be scheduled'")
 
             print("First Name: ")
             first_name = input().strip()
@@ -115,11 +115,24 @@ def add_lifeguard():
                 else:
                     answered_proper_rank = True
 
-            ans = add_lifeguard_to_db(first_name, last_name, rank, date_promoted, eval_score)
+            #   Can employee be added to the schedule or should they be excluded
+            print("Can schedule the employee (True or False)")
+            while True:
+                can_schedule = input().strip().lower()
+                if can_schedule == 'true' or can_schedule == 't':
+                    can_schedule = 1
+                    break
+                elif can_schedule == 'false' or can_schedule == 'f':
+                    can_schedule = 0
+                    break
+                else:
+                    print("Please enter true or false")
+
+            ans = add_lifeguard_to_db(first_name, last_name, rank, date_promoted, eval_score, can_schedule)
             clear_screen.clear_screen()
             if ans == -1:
-                print(f"New employee {first_name} {last_name} {rank} {date_promoted} {eval_score} has been added!")
-            elif ans == 0: # TODO Currently not working as intended. Need edge case for when not new employee and not existing employee.
+                print(f"New employee {first_name} {last_name} {rank} {date_promoted} {eval_score} {can_schedule} has been added!")
+            elif ans == 0: #    TODO Currently not working as intended. Need edge case for when not new employee and not existing employee.
                 print("Employee failed to add. Please try again.")
             else:
                 stripped_ans = ans[0] # Just cleaning up the number. Use to look like (1, ) do to fetching employee id num

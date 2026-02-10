@@ -6,7 +6,7 @@ from .. import clear_screen, main_menu
 
 DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
 
-def edit_employee_push_to_db(first_name: str, last_name: str, employee_rank: str, date_promoted: str, evaluation_score: int, employee_id: int):
+def edit_employee_push_to_db(first_name: str, last_name: str, employee_rank: str, date_promoted: str, evaluation_score: int, employee_id: int, can_schedule: int):
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
         cur.execute("""UPDATE Employees
@@ -15,8 +15,9 @@ def edit_employee_push_to_db(first_name: str, last_name: str, employee_rank: str
                         EmployeeRank = ?,
                         DatePromoted = ?,
                         EvaluationScore = ?
+                        CanSchedule = ?
                         WHERE EmployeeID = ?
-                        """,(first_name, last_name, employee_rank, date_promoted, evaluation_score, employee_id))
+                        """,(first_name, last_name, employee_rank, date_promoted, evaluation_score, can_schedule, employee_id))
         con.commit()
         print("Update sucessful!")
         return cur.rowcount == 1
@@ -71,7 +72,7 @@ def edit_employee_info(row):
     if row == -1:
         print("No employee with this infromation")
     else:
-        employee_id_db, first_name_db, last_name_db, rank_db, time_added_db, date_promoted_db, eval_score_db = row[0]
+        employee_id_db, first_name_db, last_name_db, rank_db, time_added_db, date_promoted_db, eval_score_db, can_schedule = row[0]
         print (f"Employee {first_name_db} {last_name_db} found. Please enter new infromation when prompted.\n If you dont wish to change something please leave it blank and press ENTER.")
 
         #   First name
@@ -149,14 +150,31 @@ def edit_employee_info(row):
                 print("Please enter proper eval score (1-5): ")
             else:
                 break
+
+            #   Can Schedule 1 = true/ 0 = false
+            print("Can schedule employee (True/False)", can_schedule)
+            while True:
+                can_schedule = input().strip().lower()
+                if can_schedule == 'true' or can_schedule == 't':
+                    can_schedule = 1
+                    did_anything_change == True
+                    break
+                elif can_schedule == 'false' or can_schedule == 'f':
+                    can_schedule = 0
+                    did_anything_change == True
+                    break
+                elif can_schedule == "":
+                    break
+                else:
+                    print("Please enter true or false")
         
         if did_anything_change == True:
             #   Push the info here
-            print(f"First name: {first_name_db_temp}\nLast name: {last_name_db_temp}\nEmployee rank: {rank_db_temp}\nDate employee was promoted: {date_promoted_db_temp}\nEmployee evaluation score: {eval_score_db_temp}\n\nIs this infromation correct (Y/N)")
+            print(f"First name: {first_name_db_temp}\nLast name: {last_name_db_temp}\nEmployee rank: {rank_db_temp}\nDate employee was promoted: {date_promoted_db_temp}\nEmployee evaluation score: {eval_score_db_temp}\nCan schedule employee: {can_schedule}\n\nIs this infromation correct (Y/N)")
             while True:
                 ans_correct_info = input().strip().lower()
                 if ans_correct_info == "yes" or ans_correct_info == "y":
-                    edit_employee_push_to_db(first_name_db_temp, last_name_db_temp, rank_db_temp, date_promoted_db_temp, eval_score_db_temp, employee_id_db)
+                    edit_employee_push_to_db(first_name_db_temp, last_name_db_temp, rank_db_temp, date_promoted_db_temp, eval_score_db_temp,can_schedule, employee_id_db)
                     break
                 elif ans_correct_info == "no" or ans_correct_info == "n":
                     break

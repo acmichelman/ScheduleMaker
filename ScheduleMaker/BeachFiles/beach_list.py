@@ -18,11 +18,15 @@ def viewBeachList():
         if not rows: # TODO: Edge case. Should present option to add employee or something
             print("No beaches added to database")
         else:
-            print("Beach ID | Beach Name  |  Size| Activity    | Opened ")
-            print("-------------------------------------------")
+            print("Beach ID | Beach Name    |Size    |Activity| Opened ")
+            print("----------------------------------------------------------")
             for b_id, b_name, b_size, b_activity, b_open in rows:
+                if b_open == 1:
+                    b_open = 'True'
+                elif b_open == 0:
+                    b_open = 'False'
                 name = f"{b_name}"
-                print(f"{b_id:<10} | {name:<18} | {b_size} | {b_activity} | {b_open}")
+                print(f"{b_id:<8} | {name:<13} | {b_size:<6} | {b_activity:<6} | {b_open:<5}")
 
         #con.close()
 
