@@ -92,6 +92,19 @@ def init_db():
             VALUES (?, ?, ?);
         """, [(bN, bS.lower(), bA) for (bN, bS, bA) in beach_seed])
 
+        #   Schedule Table table
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS Schedules (
+                ScheduleID INTEGER PRIMARY KEY AUTOINCREMENT,
+                SchedulePeriodID INTEGER NOT NULL,
+                SchedulePeriod TEXT NOT NULL,
+                BeachID INTEGER NOT NULL,
+                EmpID INTEGER NOT NULL,
+                EmpDaysOff TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+
 
         con.commit()
 
