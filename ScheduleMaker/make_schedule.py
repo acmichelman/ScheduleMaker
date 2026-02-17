@@ -2,10 +2,22 @@ import sqlite3
 import random
 from pathlib import Path
 from datetime import datetime
+from enum import Enum
+from itertools import combinations
 from . import clear_screen, main_menu
 
 DB_PATH = Path(__file__).resolve().parent / "DatabaseFold" / "TOHLifeguardDB"
 
+class Day(Enum):
+    MON = 0
+    TUE = 1
+    WED = 2
+    THU = 3
+    FRI = 4
+    SAT = 5
+    SUN = 6
+
+#------------------------Get beach/employee info into dicts-----------------------
 #   This func is to get all relevent employee info and store it in a dictionary
 def call_employee_info_to_store_in_dict() -> dict:
     with sqlite3.connect(str(DB_PATH)) as con:
@@ -91,7 +103,9 @@ def size_to_required(size: str) -> int:
         return 3
     #   default 4 safety
     return 1
+#------------------------End Get beach/employee info into dicts-----------------------
 
+#----------------------Schedule Employees on beaches logic--------------------------
 #   Will assign employees to beahces in their own dict for ease of reading
 #   ROUND ROBIN for random/ make sure each beach gets a SL before one gets one again
 def assign_senior_lieutenants_to_beaches(senior_lieutenants: list[dict], schedule_by_beach: dict[int, dict],):
@@ -104,10 +118,12 @@ def assign_senior_lieutenants_to_beaches(senior_lieutenants: list[dict], schedul
     random.shuffle(large_beaches)
     random.shuffle(senior_lieutenants)
 
+    sl_idx = 0
 
-    for i, sl in enumerate(senior_lieutenants): #   Loop index and SL
-        beach = large_beaches[i % len(large_beaches)] #  get how many large beaches then if remainder is 0 then you have filled each beach once
-        beach["Assigned"].append(sl["EmployeeID"])
+    while sl_idx < len(senior_lieutenants):#   Loop index and SL
+        beach = large_beaches[(sl_idx) % len(large_beaches)] #  get how many large beaches then if remainder is 0 then you have filled each beach once
+        beach["Assigned"].append(senior_lieutenants[sl_idx]["EmployeeID"])
+        sl_idx += 1
 
 #   Asign a lieutenant to beach
 """
@@ -232,6 +248,124 @@ def assign_senior_guards_to_beaches(senior_guards: list[dict], schedule_by_beach
         beach["Assigned"].append(senior_guards[sg_idx]["EmployeeID"])
         sg_idx += 1
 
+#   Lifeguards will be assigned at beaches by large beach- 3 lifeguards, medium beach- 2 lifeguards, small beach- 1 lifeguard
+def required_lifeguards_for_size(size: str) -> int:
+    s = str(size).strip().lower()
+    if s == "large":
+        return 3
+    if s == "medium":
+        return 2
+    if s == "small":
+        return 1
+    return 1  # default safety
+
+#   Asign a lifeguard to beach
+def assign_lifeguard_to_beaches(lifeguards: list[dict], schedule_by_beach: dict[int, dict],):
+    if not lifeguards:
+        return
+    if not schedule_by_beach:
+        return
+    
+    #   Build a list of beach dicts
+    beaches = []
+    for beach_id, beach in schedule_by_beach.items():
+        beaches.append(beach)
+
+    random.shuffle(lifeguards)
+    random.shuffle(beaches)
+
+    #   Lifeguard indeex
+    lg_idx = 0
+    beach_idx = 0 #   For round robin index
+
+    while lg_idx < len(lifeguards):
+        beach = beaches[beach_idx % len(beaches)]
+        beach_idx += 1
+
+        size = str(beach.get("BeachSize", "")).strip().lower()
+        #   how many lifeguards to try to add (Large = 3, Medium = 2, Small = 1)
+        if size == "large":
+            to_add = 3
+        elif size == "medium":
+            to_add = 2
+        else:
+            to_add = 1  #   small or default
+
+        #   add up to to_add lifeguards but don't go past the list length
+        added = 0
+        while added < to_add and lg_idx < len(lifeguards):
+            beach["Assigned"].append(lifeguards[lg_idx]["EmployeeID"])
+            lg_idx += 1
+            added += 1
+#----------------------End Schedule Employees on beaches logic--------------------------
+
+#-----------------------Assign Days off------------------------------------------------
+#   This will get us two random days off from the pool and know to reset once each day off has been used
+#def days_off_cycle(shuffle: bool = True):
+#    days = list(Day)
+#    day_pair = list(combinations(days, 2))
+#    if shuffle == True:
+#        random.shuffle(day_pair)
+#    return day_pair
+
+#   Will assign two days off and add it to beach_bucket_dict["Assigned"] section
+def assign_days_off(schedule_by_beach: dict[int, dict], emp_dict: dict[int, dict]):
+    for beach_id, beach in schedule_by_beach.items():
+        day_pool = list(Day)
+
+        #   Loop employees in the order assigned to this beach
+        for emp_id in beach.get("Assigned", []):
+            emp = emp_dict.get(emp_id)
+            if not emp:
+                continue
+
+            #   reset pool if empty (safety)
+            if not day_pool:
+                day_pool = list(Day)
+
+            #   pick first day and remove it from pool
+            first_day_off = random.choice(day_pool)
+            day_pool.remove(first_day_off)
+
+            #   reset pool if empty (safety)
+            if not day_pool:
+                day_pool = list(Day)
+
+            #   pick second day (can't equal first because first was removed)
+            second_day_off = random.choice(day_pool)
+            day_pool.remove(second_day_off)
+
+            #   assign to employee (store as a set of 2 days)
+            emp["DaysAssigned"] = {first_day_off, second_day_off}
+    
+
+#-----------------------End Assign Days off------------------------------------------------
+
+
+#----------------------------Display schdule logic-----------------
+def print_schedule_via_text(schedule_by_beach: dict[int, dict], emp_dict: dict[int, dict]):
+    #print(beach_bucket_dict)
+        for beach_id in sorted(schedule_by_beach.keys()):
+            beach = schedule_by_beach[beach_id]
+            beach_name = beach.get("BeachName", "")
+            assigned_ids = beach.get("Assigned", [])
+
+            print(f"\n{beach_name}")
+
+            for emp_id in assigned_ids:
+                emp = emp_dict.get(emp_id)
+                if not emp:
+                    continue 
+                first = emp.get("FirstName", "")
+                last = emp.get("LastName", "")
+                days_off = emp.get("DaysAssigned", set)
+                if isinstance(days_off, set): # Should break up {<Day.FRI: 4>, <Day.MON: 0>} into something readable
+                    days_off_str = "(" + ", ".join(d.name for d in sorted(days_off, key=lambda d: d.value)) + ")" 
+                else:
+                    days_off_str = str(days_off)
+                print(f"  {first} {last} {days_off_str}")
+
+#----------------------------End Display schdule logic-----------------
 #   Logic that creates actueal schedule
 def schedule_emp_logic():
     #   Get each dict for useage
@@ -264,6 +398,7 @@ def schedule_emp_logic():
     print(" ")
 
     #   CALL FUNCTIONS TO GET EMPLOYEES HERE
+    #   Every employee id gets saved in beach_dict Assigned dict. Access this for our list of employees
     assign_senior_lieutenants_to_beaches(senior_lieutenants, beach_bucket_dict)
     assign_lieutenants_to_beaches(lieutenants, beach_bucket_dict)
     #   For senior guard. When we check if a medium beach has a LT or not
@@ -271,8 +406,51 @@ def schedule_emp_logic():
     for lt in lieutenants:
         lieutenant_ids.add(lt["EmployeeID"])
     assign_senior_guards_to_beaches(senior_guards,beach_bucket_dict, lieutenant_ids)
-    test = lieutenants[0]
-    print (test)
+    assign_lifeguard_to_beaches(lifeguards, beach_bucket_dict)
+
+    assign_days_off(beach_bucket_dict, emp_dict)
+
+    print_schedule_via_text(beach_bucket_dict, emp_dict)
+    ans = save_schedule_to_db_prompt()
+    if ans == 1:
+        save_schedule_to_db(beach_bucket_dict,emp_dict)
+    
+   
+#   Helper func to be used when storing days off in DB
+def convert_days_off_to_text(days_off):
+    if not isinstance(days_off, set) or not days_off:
+        return ""
+
+    ordered = sorted(days_off, key=lambda d: d.value)  #    MON before TUE ect...
+    return ", ".join(d.name for d in ordered)
+
+def save_schedule_to_db_prompt(): # Just asking user if we can save this or not. Important cause SchedulePeriod will increment
+    print("Can save schedule? (Yes or No)")
+    while True:
+        can_save = input().strip().lower()
+        if can_save == 'yes' or can_save == 'y':
+            can_save = 1
+            return 1
+        elif can_save == 'no' or can_save == 'n':
+            can_save = 0
+            return 0
+        else:
+            print("Please enter true or false")
+
+def save_schedule_to_db(beach_bucket_dict: dict[int,dict], emp_dict: dict[int,dict],):
+    """
+    ScheduleID INTEGER PRIMARY KEY AUTOINCREMENT,
+    SchedulePeriodID INTEGER NOT NULL,
+    SchedulePeriod TEXT NOT NULL,
+    BeachID INTEGER NOT NULL,
+    EmpID INTEGER NOT NULL,
+    EmpDaysOff TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    """
+
+
+
+
 
 def menu_options():
     print("\nMenu Options")
@@ -288,7 +466,6 @@ def make_schedule():
     running = True
     
     while running:
-        print("Make Schdeule called")
         ans = input("> ").strip()
 
         if ans.lower() == "Make Schdeule" or ans == "1":
