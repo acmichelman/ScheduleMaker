@@ -1,7 +1,7 @@
 import sqlite3
 import random
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 from itertools import combinations
 from . import clear_screen, main_menu
@@ -435,9 +435,41 @@ def save_schedule_to_db_prompt(): # Just asking user if we can save this or not.
             can_save = 0
             return 0
         else:
-            print("Please enter true or false")
+            print("Please enter yes or no")
 
-def save_schedule_to_db(beach_bucket_dict: dict[int,dict], emp_dict: dict[int,dict],):
+#   Helper function that will get the last SchedulePeriodID if it exists so we can increment/ get SchedulePeriod (2 week block) to auto get date
+def get_last_schedule_period():
+    with sqlite3.connect(DB_PATH) as con:
+        cur = con.cursor()
+        cur.execute("""
+            SELECT SchedulePeriodID, SchedulePeriod
+            FROM Schedules
+            ORDER BY SchedulePeriodID DESC
+            LIMIT 1;
+        """)
+        row = cur.fetchone()
+        if row is None:
+            return None, None
+        return row[0],row[1]
+        
+    
+def get_pay_period_prompt():
+    #   This will get our two week work period
+    print("Please enter the pay period starting with your first week (MM/DD/YYYY): ")
+    while True:
+        first_week_period = input().strip()
+        try:
+            start_dt = datetime.strptime(first_week_period, "%m/%d/%Y")
+            break
+        except ValueError:
+            print("Invalid date. Please use MM/DD/YYYY: ")
+    second_week_period = start_dt + timedelta(days=13)
+    second_week_period = second_week_period.date()    
+    second_week_period = second_week_period.strftime("%m/%d/%Y")
+    return first_week_period, second_week_period
+    
+
+def save_schedule_to_db(schedule_by_beach: dict[int,dict], emp_dict: dict[int,dict],):
     """
     ScheduleID INTEGER PRIMARY KEY AUTOINCREMENT,
     SchedulePeriodID INTEGER NOT NULL,
@@ -446,8 +478,74 @@ def save_schedule_to_db(beach_bucket_dict: dict[int,dict], emp_dict: dict[int,di
     EmpID INTEGER NOT NULL,
     EmpDaysOff TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    """
 
+
+    get set sechdulePeriodID here
+    for loop where we connect to DB 
+        get each piece of data
+        set it to db to be saved
+    """
+    #   Gets last SchedulePeriodID/ SchedulePeriod for auto increment
+    #   Also used to check if user wants to enter new pay period (Check if its null then get first set one. else prompt user if they want to use)
+    sp_id_db = get_last_schedule_period() #    Gets SchedulePeriodID & SchedulePeriod
+    sp_id, sp = sp_id_db
+    if sp_id != None:
+        sp_id += 1
+    else:
+        sp_id = 1
+
+    if sp is not None and " - " in sp:
+        prev_first_str, prev_second_str = (s.strip() for s in sp.split(" - ", 1))
+
+        #   prev_second_str is the end marker we stored 13 days after start (monday - sunday twice)
+        prev_second_dt = datetime.strptime(prev_second_str, "%m/%d/%Y").date()
+
+        #   Next pay period
+        next_first_dt  = prev_second_dt + timedelta(days=1)
+        next_second_dt = next_first_dt + timedelta(days=13)
+
+        first_week_period  = next_first_dt.strftime("%m/%d/%Y")
+        second_week_period = next_second_dt.strftime("%m/%d/%Y")
+
+        sp = f"{first_week_period} - {second_week_period}"
+    else:
+        first_week_period, second_week_period = get_pay_period_prompt()
+        sp = f"{first_week_period} - {second_week_period}"
+
+    #   Confirm with user if period date is correct
+    while True:
+        
+        print(f"Is this the correct schedule period: {first_week_period}, {second_week_period} (Yes/No)")
+        confirm_date = input().strip().lower()
+        if confirm_date == 'yes' or confirm_date == 'y':
+            sp = f"{first_week_period} - {second_week_period}"   #  Convert to text from tuple TEXT
+            break
+        elif confirm_date == 'no' or confirm_date == 'n':
+            first_week_period, second_week_period = get_pay_period_prompt()
+            sp = f"{first_week_period} - {second_week_period}"
+            
+        else:
+            print("Please enter yes or no")
+    
+    #   Save each beach/ employee/ 2 days off combination
+    with sqlite3.connect(DB_PATH) as con:
+        cur = con.cursor()
+        for beach_id in sorted(schedule_by_beach.keys()):
+            beach = schedule_by_beach[beach_id]
+            for emp_id in beach.get("Assigned", []):
+                emp = emp_dict.get(emp_id)
+                if not emp:
+                    continue
+                days_off_text = convert_days_off_to_text(emp.get("DaysAssigned", set()))
+                cur.execute("""INSERT INTO Schedules
+                            (SchedulePeriodID, SchedulePeriod, BeachID, EmpID, EmpDaysOff)
+                            VALUES (?, ?, ?, ?, ?)
+                            """, (sp_id, sp, beach_id, emp_id, days_off_text))
+    con.commit()
+    print(f"Schedule saved under schedule period ID: {sp_id}")
+            
+
+    #print(f"sp_id: {sp_id}, sp: {sp}")
 
 
 
