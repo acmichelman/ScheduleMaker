@@ -177,12 +177,11 @@ def load_excel_into_db(ws):
                     date_promoted = "NA"
 
                 #   INSERT INTO OUR DATABASE !!!
-                cur.execute(
-                    """INSERT INTO Employees
-                       (FirstName, LastName, EmployeeRank, DatePromoted, EvaluationScore)
-                       VALUES (?, ?, ?, ?, ?)
-                       ON CONFLICT(FirstName, LastName) DO NOTHING;
-                    """,(first, last, rank, date_promoted, eval_score))
+                cur.execute("""INSERT INTO Employees
+                            (FirstName, LastName, EmployeeRank, DatePromoted, EvaluationScore)
+                            VALUES (?, ?, ?, ?, ?)
+                            ON CONFLICT(FirstName, LastName) DO NOTHING;
+                            """,(first, last, rank, date_promoted, eval_score))
                 
                 if cur.rowcount == 1:
                     inserted += 1

@@ -43,7 +43,7 @@ def init_db():
                 DatePromoted       TEXT,
                 EvaluationScore INTEGER NOT NULL DEFAULT 3,
                 CanSchedule INTEGER NOT NULL CHECK (CanSchedule IN (0,1)) DEFAULT 1,    
-                LastBeach       INTENGER,
+                LastBeach       INTEGER,
                 UNIQUE(FirstName, LastName)  -- prevents duplicates
             );
         """)
