@@ -1,6 +1,6 @@
 # Schedule Maker (Town of Hempstead Ocean Lifeguards)
 
-A CLI schedule maker for Town of Hempstead Ocean Lifeguards designed to account for different beach staffing needs.
+A schedule maker for Town of Hempstead Ocean Lifeguards designed to account for different beach staffing needs.
 
 ## Features
 - Employee management
