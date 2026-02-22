@@ -6,6 +6,7 @@ import sqlite3
 
 from . import clear_screen
 from . import main_menu
+from .main import main
 
 from .db import DB_PATH, ensure_db_dir
 

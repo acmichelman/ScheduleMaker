@@ -163,3 +163,8 @@ cython_debug/
 ScheduleMaker/DatabaseFold/TOHLifeguardDB
 
 Dev/
+
+__pycache__/
+*.pyc
+DatabaseFold/          
+*.log
