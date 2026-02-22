@@ -31,7 +31,7 @@ python3 -m venv .venv
 # Windows:
 .venv\Scripts\activate
 # macOS/Linux:
-# source .venv/bin/activate
+source .venv/bin/activate
 
 pip install -r requirements.txt
 python -m ScheduleMaker.main
