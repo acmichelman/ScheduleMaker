@@ -4,7 +4,8 @@ import sqlite3
 from .. import clear_screen, main_menu
 from . import lifeguard_list, edit_employees  #   same-folder imports
 
-DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
+#DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
+from ..db import DB_PATH, ensure_db_dir
 
 def remove_lifeguard_from_db(first_name: str, last_name: str, emp_id: int) -> bool:
     

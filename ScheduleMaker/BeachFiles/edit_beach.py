@@ -4,7 +4,8 @@ import sqlite3
 from .. import clear_screen, main_menu
 from . import edit_beach  # same folder module
 
-DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
+#DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
+from ..db import DB_PATH, ensure_db_dir
 
 def edit_beach_push_to_db(beach_name:str, beach_size: str, beach_activity: int, beach_open: str, beach_id: int):
     with sqlite3.connect(DB_PATH) as con:

@@ -4,7 +4,8 @@ from datetime import datetime
 
 from .. import clear_screen, main_menu
 
-DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
+#DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
+from ..db import DB_PATH, ensure_db_dir
 
 def edit_employee_push_to_db(first_name: str, last_name: str, employee_rank: str, date_promoted: str, evaluation_score: int, employee_id: int, can_schedule: int):
     with sqlite3.connect(DB_PATH) as con:

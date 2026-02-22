@@ -6,8 +6,8 @@ from openpyxl import Workbook
 from openpyxl.styles import PatternFill 
 
 from .. import clear_screen, main_menu
-
-DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
+from ..db import DB_PATH, ensure_db_dir
+#DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
 
 """
 Civic            Middle               2 Chair           Organize the schedule so Senior Lieutenant-> Lieutenant-> Senior Guard-> Lifeguard

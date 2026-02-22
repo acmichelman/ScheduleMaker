@@ -4,6 +4,7 @@ from . import clear_screen, make_schedule
 from .EmployeesFiles import lifeguard_list, add_lifeguard, remove_lifeguard, edit_employees
 from .BeachFiles import beach_list, add_beach, remove_beach, edit_beach
 from .ExcelFolder import import_employees_excel, export_schedule_to_excel
+
 #   Lifeguard navigation page
 def lifeguard_page():
     clear_screen.clear_screen()

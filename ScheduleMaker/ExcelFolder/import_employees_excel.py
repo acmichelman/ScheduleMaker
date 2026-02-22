@@ -6,7 +6,8 @@ from openpyxl import load_workbook
 
 from .. import clear_screen, main_menu
 
-DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
+#DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
+from ..db import DB_PATH, ensure_db_dir
 EXCEL_DIR = Path(__file__).resolve().parent  #  ExcelFolder/
 
 #   Will use this to prompt the user if correct file was loaded
@@ -15,7 +16,6 @@ def find_newest_excel_file():
     excel_files = sorted(EXCEL_DIR.glob("*.xlsx"), key=lambda p: p.stat().st_mtime, reverse=True)
     if not excel_files:
         return -1
-        #raise FileNotFoundError(f"No .xlsx files found in {EXCEL_DIR}")
         
     EXCEL_PATH = excel_files[0]  #  newest file
     #   Name + last modified timestamp
@@ -84,7 +84,6 @@ def normalize_eval(value) -> str:
 
 #   LOAD INTO DB
 def load_excel_into_db(ws):
-    print("Load Excel called")
 
     #   Headers are our cells
     headers = [cell.value for cell in ws[1]]
@@ -201,7 +200,6 @@ def load_excel_into_db(ws):
     print(f"Skipped (duplicates): {skipped_duplicates}")
     print(f"Skipped (bad eval score): {skipped_bad_eval}")
 
-    #   TODO Defiently should be logging
     if errors:
         print(f"\nErrors: {len(errors)} (showing up to 10)")
         for rnum, msg in errors[:10]:

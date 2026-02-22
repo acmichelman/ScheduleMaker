@@ -3,10 +3,10 @@ import random
 from pathlib import Path
 from datetime import datetime, timedelta
 from enum import Enum
-#from itertools import combinations
 from . import clear_screen, main_menu
 
-DB_PATH = Path(__file__).resolve().parent / "DatabaseFold" / "TOHLifeguardDB"
+#DB_PATH = Path(__file__).resolve().parent / "DatabaseFold" / "TOHLifeguardDB"
+from .db import DB_PATH, ensure_db_dir
 
 class Day(Enum):
     MON = 0

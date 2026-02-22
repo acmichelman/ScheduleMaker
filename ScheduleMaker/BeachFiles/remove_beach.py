@@ -4,7 +4,8 @@ import sqlite3
 from .. import clear_screen, main_menu
 from . import edit_beach
 
-DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
+#DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
+from ..db import DB_PATH, ensure_db_dir
 
 def remove_beach_from_db(beach_name:str) -> bool:
     with sqlite3.connect(DB_PATH) as con:
