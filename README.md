@@ -1,0 +1,1 @@
+Run the program with python -m ScheduleMaker.main
