@@ -101,7 +101,10 @@ def init_db():
                 BeachID INTEGER NOT NULL,
                 EmpID INTEGER NOT NULL,
                 EmpDaysOff TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                BeachNameText TEXT NOT NULL,
+                FirstLastNameText TEXT NOT NULL,
+                EmpRank TEXT NOT NULL
             );
         """)
 

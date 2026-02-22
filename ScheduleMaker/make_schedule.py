@@ -366,6 +366,30 @@ def print_schedule_via_text(schedule_by_beach: dict[int, dict], emp_dict: dict[i
                 print(f"  {first} {last} {days_off_str}")
 
 #----------------------------End Display schdule logic-----------------
+
+#--------------------------Get Beach Name/ Emp First/ Last Name--------
+#   Two helper functions. Just to make exporting to Excel easier so I dont need to get info from 3 different DB
+#   Return the beach name as TEXT (Maked Exporting easier with excel so its all on one DB)
+def get_beach_name_text(beach: dict) -> str:
+    
+    return str(beach.get("BeachName", ""))
+
+#   Return 'FirstLastName' as TEXT which is a combination of FirstName & LastName from Employees DB once again for exporting
+def get_first_last_name_text(emp: dict) -> str:
+    first = str(emp.get("FirstName", ""))
+    last  = str(emp.get("LastName", ""))
+    if not first and not last:
+        return ""
+    first_initial = first[0].upper() if first else "" # Remove last name spaces if any. Dont remeber if I stripped these off
+    last_clean = "".join(last.split())
+    return f"{first_initial}. {last_clean}"
+
+def get_emp_rank(emp: dict) -> str:
+
+    return str(emp.get("EmployeeRank", ""))
+
+#--------------------------End Get Beach Name/ Emp First/ Last Name--------
+
 #   Logic that creates actueal schedule
 def schedule_emp_logic():
     #   Get each dict for useage
@@ -477,7 +501,10 @@ def save_schedule_to_db(schedule_by_beach: dict[int,dict], emp_dict: dict[int,di
     BeachID INTEGER NOT NULL,
     EmpID INTEGER NOT NULL,
     EmpDaysOff TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    BeachName TEXT NOT NULL,
+    FirstLastName TEXT NOT NULL,
+    EmpRank TEXT NOT NULL
 
 
     get set sechdulePeriodID here
@@ -532,15 +559,18 @@ def save_schedule_to_db(schedule_by_beach: dict[int,dict], emp_dict: dict[int,di
         cur = con.cursor()
         for beach_id in sorted(schedule_by_beach.keys()):
             beach = schedule_by_beach[beach_id]
+            beach_name_text = get_beach_name_text(beach) 
             for emp_id in beach.get("Assigned", []):
                 emp = emp_dict.get(emp_id)
                 if not emp:
                     continue
+                first_last_text = get_first_last_name_text(emp)
+                emp_rank = get_emp_rank(emp) 
                 days_off_text = convert_days_off_to_text(emp.get("DaysAssigned", set()))
                 cur.execute("""INSERT INTO Schedules
-                            (SchedulePeriodID, SchedulePeriod, BeachID, EmpID, EmpDaysOff)
-                            VALUES (?, ?, ?, ?, ?)
-                            """, (sp_id, sp, beach_id, emp_id, days_off_text))
+                            (SchedulePeriodID, SchedulePeriod, BeachID, EmpID, EmpDaysOff, BeachNameText, FirstLastNameText, EmpRank)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                            """, (sp_id, sp, beach_id, emp_id, days_off_text, beach_name_text, first_last_text, emp_rank))
     con.commit()
     print(f"Schedule saved under schedule period ID: {sp_id}")
             

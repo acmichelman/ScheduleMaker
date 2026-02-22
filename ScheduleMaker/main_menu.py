@@ -3,14 +3,14 @@ import sys
 from . import clear_screen, make_schedule
 from .EmployeesFiles import lifeguard_list, add_lifeguard, remove_lifeguard, edit_employees
 from .BeachFiles import beach_list, add_beach, remove_beach, edit_beach
-from .ExcelFolder import import_employees_excel
+from .ExcelFolder import import_employees_excel, export_schedule_to_excel
 
 def main_menu():
     """Main menu loop."""
     clear_screen.clear_screen()
     print("Welcome to the Lifeguard Schedule Maker.\n")
     print("Please type which menu to navigate to:\n")
-    print("Lifeguard List[1]\nAdd Lifeguard[2]\nRemove Lifeguard[3]\nEdit Lifeguard[4]\nBeach List[5]\nAdd Beach[6]\nRemove Beach[7]\nEdit Beach[8]\nLoad Employees[9]\nMake Schedule[10]\nQuit[0]\n")
+    print("Lifeguard List[1]\nAdd Lifeguard[2]\nRemove Lifeguard[3]\nEdit Lifeguard[4]\nBeach List[5]\nAdd Beach[6]\nRemove Beach[7]\nEdit Beach[8]\nLoad Employees[9]\nExport Employees[10]\nMake Schedule[11]\nQuit[0]\n")
 
     running = True
     while running:
@@ -34,7 +34,9 @@ def main_menu():
             edit_beach.edit_beach()
         elif ans.lower() == "load employees" or ans == "9":
             import_employees_excel.import_emp_from_excel_menu()
-        elif ans.lower() == "make schedule" or ans == "10":
+        elif ans.lower() == "export employees" or ans == "10":
+            export_schedule_to_excel.export_emp_to_excel_menu()
+        elif ans.lower() == "make schedule" or ans == "11":
             make_schedule.make_schedule()
         elif ans.lower() == "quit" or ans == "0": 
             clear_screen.clear_screen()
@@ -44,5 +46,5 @@ def main_menu():
         else:
             clear_screen.clear_screen()
             print("Please enter a valid option.\n")
-    print("Lifeguard List[1]\nAdd Lifeguard[2]\nRemove Lifeguard[3]\nEdit Lifeguard[4]\nBeach List[5]\nAdd Beach[6]\nRemove Beach[7]\nEdit Beach[8]\nLoad Employees[9]\nMake Schedule[10]\nQuit[0]\n")
+    print("Lifeguard List[1]\nAdd Lifeguard[2]\nRemove Lifeguard[3]\nEdit Lifeguard[4]\nBeach List[5]\nAdd Beach[6]\nRemove Beach[7]\nEdit Beach[8]\nLoad Employees[9]\nExport Employees[10]\nMake Schedule[11]\nQuit[0]\n")
 
