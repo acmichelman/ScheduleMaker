@@ -3,7 +3,7 @@ import random
 from pathlib import Path
 from datetime import datetime, timedelta
 from enum import Enum
-from itertools import combinations
+#from itertools import combinations
 from . import clear_screen, main_menu
 
 DB_PATH = Path(__file__).resolve().parent / "DatabaseFold" / "TOHLifeguardDB"
@@ -300,13 +300,6 @@ def assign_lifeguard_to_beaches(lifeguards: list[dict], schedule_by_beach: dict[
 #----------------------End Schedule Employees on beaches logic--------------------------
 
 #-----------------------Assign Days off------------------------------------------------
-#   This will get us two random days off from the pool and know to reset once each day off has been used
-#def days_off_cycle(shuffle: bool = True):
-#    days = list(Day)
-#    day_pair = list(combinations(days, 2))
-#    if shuffle == True:
-#        random.shuffle(day_pair)
-#    return day_pair
 
 #   Will assign two days off and add it to beach_bucket_dict["Assigned"] section
 def assign_days_off(schedule_by_beach: dict[int, dict], emp_dict: dict[int, dict]):
@@ -573,9 +566,6 @@ def save_schedule_to_db(schedule_by_beach: dict[int,dict], emp_dict: dict[int,di
                             """, (sp_id, sp, beach_id, emp_id, days_off_text, beach_name_text, first_last_text, emp_rank))
     con.commit()
     print(f"Schedule saved under schedule period ID: {sp_id}")
-            
-
-    #print(f"sp_id: {sp_id}, sp: {sp}")
 
 
 

@@ -16,11 +16,14 @@ File:       main.py
 Author:     Alexander Michelman
 Created:    10-21-2025
 Description:
-    A schedule maker for Town OF Hempstead Ocean Lifeguards designed to take into account different beach staffing
-        needs.
+    A schedule maker for Town OF Hempstead Ocean Lifeguards designed to take into account different beach staffing needs.
+    Allows user to add single or many guards (with excel files), remove guards, edit guard infromation and view guard list.
+    Allows user to add beach, remove beach, edit beach infromation and view beach list.
+    Allows user to make work schedule for two week period and export the schedule in a single excel file.
 
 Example:
     $ python main.py
+    python -m ScheduleMaker.main
 
 License:    MIT License2
 """
@@ -30,8 +33,8 @@ def init_db():
 
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
-        # Make names not case sensitive and enforce uniqueness on (FirstName, LastNname)
-        # SQLite Autoincrement will assign a # between 1 - 9223372036854775807
+        #   Make names not case sensitive and enforce uniqueness on (FirstName, LastNname)
+        #   SQLite Autoincrement will assign a # between 1 - 9223372036854775807
         #   Employee table
         cur.execute("""
             CREATE TABLE IF NOT EXISTS Employees (
@@ -85,7 +88,7 @@ def init_db():
         ]
 
         #   Our for loop. 
-        # MySQLCursor.executemany() Method-This method prepares a database operation (query or command) and executes it against all parameter sequences or mappings found in the sequence seq_of_params. Its just a for loop man. figure it out
+        #   MySQLCursor.executemany() Method-This method prepares a database operation (query or command) and executes it against all parameter sequences or mappings found in the sequence seq_of_params.
         #   para: bId (Beach ID), bN(Beach Name), bS(Beach Size), bA(Beach Activity), bO(Beach Open)
         cur.executemany("""
             INSERT OR IGNORE INTO Beaches (BeachName, BeachSize, BeachActivity)
