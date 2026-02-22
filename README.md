@@ -27,7 +27,7 @@ The database file is stored in the `DatabaseFold/` directory (created if it does
 
 ## Installation & Run
 ```bash
-python -m venv .venv
+python3 -m venv .venv
 # Windows:
 .venv\Scripts\activate
 # macOS/Linux:
