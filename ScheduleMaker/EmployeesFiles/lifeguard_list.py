@@ -10,14 +10,13 @@ from ..db import DB_PATH, ensure_db_dir
 def viewEmployeeList():
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
-        # TODO: Should have different functions on differing ways to sort
         cur.execute("""SELECT EmployeeID, FirstName, LastName, EmployeeRank, DatePromoted, EvaluationScore, CanSchedule
                     FROM Employees
                     ORDER BY LastName, FirstName
                     """)
         rows = cur.fetchall()
 
-        if not rows: # TODO: Edge case. Should present option to add employee or something
+        if not rows:
             print("No employees added to database")
         else:
             print("EmployeeID | First Name    Last Name| Rank            | Date Promoted | Eval Score | Can Schedule")
@@ -54,4 +53,3 @@ def lifeguard_list():
             main_menu.main_menu()
         else:
             print("Please pick a different option")
-    # TODO: Load and display lifeguard list from file or database 

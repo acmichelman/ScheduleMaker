@@ -40,7 +40,7 @@ def normalize_rank(value) -> str:
         "lieutenant": "lieutenant",
         "sl": "senior lieutenant",
         "senior lieutenant": "senior lieutenant",
-    }   #   TODO Should change add employee to match this. It looks better
+    } 
     return mapping.get(ans, ans)
 
 #   DATE MM/DD/YYYY
@@ -53,7 +53,6 @@ def normalize_date(value) -> str:
       - blank/None -> "NA"
     """
     #   If the value is empty we can return NA 
-    #   TODO Not sure if it will stay 'NA'. may want to change it to NULL
     if value is None or str(value).strip() == "":
         return "NA"
     
@@ -192,7 +191,6 @@ def load_excel_into_db(ws):
         con.commit()
 
     #   Prints employees added/ errors that occured like skips and such.
-    #   TODO should be logged instead
     print("\nImport results:")
     print(f"Inserted: {inserted}")
     print(f"Skipped (blank First/Last/Rank): {skipped_blank_required}")

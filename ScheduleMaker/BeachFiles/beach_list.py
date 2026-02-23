@@ -9,14 +9,13 @@ from ..db import DB_PATH, ensure_db_dir
 def viewBeachList():
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
-        # TODO: Should have different functions on differing ways to sort
         cur.execute("""SELECT BeachID, BeachName, BeachSize, BeachActivity, BeachOpen
                     FROM Beaches
                     ORDER BY BeachID
                     """)
         rows = cur.fetchall()
 
-        if not rows: # TODO: Edge case. Should present option to add employee or something
+        if not rows: 
             print("No beaches added to database")
         else:
             print("Beach ID | Beach Name    |Size    |Activity| Opened ")

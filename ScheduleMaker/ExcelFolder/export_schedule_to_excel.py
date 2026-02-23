@@ -80,8 +80,8 @@ def export_to_excel(period_option: str):
     #   Bucket the schedules under a beach id (ex. Civic-> name1, name2, name3 Middle-> name4, name5)
     beach_id_by_name: dict[str, int] = {} # For sorting colum id
     beach_name_by_id: dict[int, str] = {} # For writting the header text
-    for beach_id, beach_name in beach_rows: #   TODO: sort with just one dict maybe. Right now it makes sense but redundent?
-        if beach_name is None:  #TODO: We can probally just remove all of this
+    for beach_id, beach_name in beach_rows: 
+        if beach_name is None: 
             continue
         bn = str(beach_name)
         beach_id_by_name[bn.lower()] = int(beach_id) #  We have the first letter captalized so this should make fuck ups less likely

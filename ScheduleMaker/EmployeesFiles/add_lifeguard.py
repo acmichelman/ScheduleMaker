@@ -133,7 +133,7 @@ def add_lifeguard():
             clear_screen.clear_screen()
             if ans == -1:
                 print(f"New employee {first_name} {last_name} {rank} {date_promoted} {eval_score} {can_schedule} has been added!")
-            elif ans == 0: #    TODO Currently not working as intended. Need edge case for when not new employee and not existing employee.
+            elif ans == 0: 
                 print("Employee failed to add. Please try again.")
             else:
                 stripped_ans = ans[0] # Just cleaning up the number. Use to look like (1, ) do to fetching employee id num
