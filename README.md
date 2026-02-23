@@ -39,8 +39,8 @@ python -m ScheduleMaker.main
 
 ## Excel file formatting
 When program reads from a Excel file please make sure your headers match this formatting
-- FirstName
-- LastName
-- EmployeeRank
-- DatePromoted
-- EvaluationScore
+- FirstName (str)
+- LastName (str)
+- EmployeeRank (senior lieutenant, lieutenant, senior guard, lifeguard)
+- DatePromoted (MM/DD/YYYY)
+- EvaluationScore (1-5)
