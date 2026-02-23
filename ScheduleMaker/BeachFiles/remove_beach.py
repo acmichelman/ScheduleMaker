@@ -4,7 +4,6 @@ import sqlite3
 from .. import clear_screen, main_menu
 from . import edit_beach
 
-#DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
 from ..db import DB_PATH, ensure_db_dir
 
 def remove_beach_from_db(beach_name:str) -> bool:
@@ -14,7 +13,7 @@ def remove_beach_from_db(beach_name:str) -> bool:
                     WHERE BeachName = ?
                     """, (beach_name,))
         con.commit()
-        removed = cur.rowcount # To check how many removed  
+        removed = cur.rowcount #    To check how many removed  
         return removed
 
 def validate_info(row):

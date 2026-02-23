@@ -4,7 +4,6 @@ import logging
 
 from .. import clear_screen, main_menu
 
-#DB_PATH = Path(__file__).resolve().parents[1] / "DatabaseFold" / "TOHLifeguardDB"
 from ..db import DB_PATH, ensure_db_dir
 
 logging.basicConfig(
