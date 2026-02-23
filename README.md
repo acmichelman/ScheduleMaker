@@ -35,3 +35,7 @@ source .venv/bin/activate
 
 pip install -r requirements.txt
 python -m ScheduleMaker.main
+```
+
+## Excel file formatting
+When program reads from a Excel file please make sure your headers match this (FirstName, LastName, EmployeeRank, DatePromoted, EvaluationScore)
