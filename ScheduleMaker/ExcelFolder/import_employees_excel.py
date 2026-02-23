@@ -79,7 +79,6 @@ def normalize_eval(value) -> str:
     n = int(value)
     if n < 1 or n > 5:
         return -1 # MAKE SURE THIS IS SKIPPED
-        #raise ValueError("EvaluationScore must be 1-5")
     return n
 
 #   LOAD INTO DB
@@ -95,8 +94,8 @@ def load_excel_into_db(ws):
     if missing:
         print("Excel is missing required columns:")
         for m in sorted(missing):
-            print(f" - {m}")#   TODO Might want to change how it looks but '-' is ok for now
-        return #End here if missing
+            print(f" - {m}")
+        return #    End here if missing
 
     #   map column name -> index
     col = {name: headers.index(name) for name in headers if name != ""}
