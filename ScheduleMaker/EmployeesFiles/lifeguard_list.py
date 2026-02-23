@@ -5,6 +5,10 @@ from .. import clear_screen, main_menu
 
 from ..db import DB_PATH, ensure_db_dir
 
+"""
+Provides a simple console UI for viewing the current Employees table and displays each employees ID, name, rank, promotion date, evaluation score, and whether or not they can be scheduled.
+"""
+
 # SQL Connect
 def viewEmployeeList():
     with sqlite3.connect(DB_PATH) as con:
@@ -35,7 +39,6 @@ def menu_options():
     print("View[1] \nBack[2]")
 
 def lifeguard_list():
-    """Display the Lifeguard List menu."""
     clear_screen.clear_screen()
     print("Welcome to Lifeguard List page")
     menu_options()

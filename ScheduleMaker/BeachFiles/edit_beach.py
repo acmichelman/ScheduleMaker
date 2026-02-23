@@ -6,6 +6,10 @@ from . import edit_beach  # same folder module
 
 from ..db import DB_PATH, ensure_db_dir
 
+"""
+Provides the console UI and database helpers for transforming an existing beach record in the Beaches table.
+"""
+
 def edit_beach_push_to_db(beach_name:str, beach_size: str, beach_activity: int, beach_open: str, beach_id: int):
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
@@ -35,6 +39,21 @@ def pick_beach_by_name(beach_name: str):
         return(row)
     
 def edit_beach_info(row):
+    """
+    Prompt the user to transform a beach record and optionally update the database
+        Validations:
+        - BeachSize accepts s/m/l or small/medium/large
+        - BeachActivity must be an integer 1-5
+        - BeachOpen accepts t/f or true/false
+        If at least one field changed, the user is asked to confirm before updating the DB.
+
+    Parameters:
+        row (list[tuple] | int):
+            The result from pick_beach_by_name (list of tuples) or -1 if not found
+
+    Returns:
+        None
+    """
     did_anything_change = False
     if row == -1:
         print("No employee with this infromation")

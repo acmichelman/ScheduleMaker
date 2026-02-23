@@ -9,16 +9,14 @@ from .. import clear_screen, main_menu
 from ..db import DB_PATH, ensure_db_dir
 
 """
+Description:
+    Exports a previously saved two-week schedule from the SQLite database into a formatted Excel (.xlsx) file using openpyxl
+
 Civic            Middle               2 Chair           Organize the schedule so Senior Lieutenant-> Lieutenant-> Senior Guard-> Lifeguard
 Sr Lieutenant    J.Doe (Mon, Tue)     J.Rock (Wes, Thur)
 Lieutenant       S.Chase (Wed, Thur)  D.Will (Fri, Sun)
 Sr Guard         ect                  ect
 Lifeguard
-
-Tired of looking up links
-https://www.geeksforgeeks.org/python/working-with-excel-spreadsheets-in-python/
-https://openpyxl.readthedocs.io/en/stable/
-https://www.youtube.com/watch?v=0AlQtxFqv54
 """
 #   On our schedule we have lieutenants names highlighted in yellow and senior guards highlighted in blue. Makes it easier for young guards to know whos in charge
 YELLOW_FILL = PatternFill(start_color="f7cb52", end_color="f7cb52", fill_type="solid")
@@ -33,6 +31,23 @@ RANK_ORDER = {
 }
 
 def get_past_full_schedule(schedule_period: str):
+    """
+    Fetches all schedule rows for a given schedule period and return them as a dictionary
+
+    Parameters:
+        schedule_period (str):
+            The two-week schedule period string stored in the DB (ex "05/25/2026 - 06/07/2026").
+
+    Returns:
+        dict[int, dict]:
+            Dictionary keyed by RowID containing:
+              - RowID
+              - SchedulePeriod
+              - EmpDaysOff
+              - BeachNameText
+              - FirstLastNameText
+              - EmpRank
+    """
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
         cur.execute("""SELECT EmpDaysOff, BeachNameText, FirstLastNameText, EmpRank
@@ -55,7 +70,7 @@ def get_past_full_schedule(schedule_period: str):
 
     return schedules_by_row_id
 
-#   Looks at Schedules DB and gets all unique 2 week periods as options to export
+#   Fetches all 2 week periods periods to be picked from
 def get_past_schedulePeriod():
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
@@ -67,6 +82,19 @@ def get_past_schedulePeriod():
     
 #   Export to excel logic
 def export_to_excel(period_option: str):
+    """
+    Export a selected schedule period to a formatted Excel workbook. Loads schedule rows for the 
+    specified SchedulePeriod from the Schedules table & beaches from the Beaches table to  make a hashmap.
+    Bucket the tables, sort employee ranks and write to a single worksheet. Color SL, L yellow and SG blue for readability. 
+    Save to Dowbloads when finished
+
+    Parameters:
+        period_option (str):
+            The schedule period string to export (must match SchedulePeriod stored in the DB).
+
+    Returns:
+        None
+    """
     rows = get_past_full_schedule(period_option)
     
     #   should get a hashmap of BeachID so we can order columns by BeachID

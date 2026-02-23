@@ -6,7 +6,12 @@ from .. import clear_screen, main_menu
 
 from ..db import DB_PATH, ensure_db_dir
 
+"""
+Provides the console UI and database helpers for Transforming an existing employee record in the Employees table
+"""
+
 def edit_employee_push_to_db(first_name: str, last_name: str, employee_rank: str, date_promoted: str, evaluation_score: int, employee_id: int, can_schedule: int):
+    
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
         cur.execute("""UPDATE Employees
@@ -50,7 +55,7 @@ def pick_employee_by_id(id_num: int):
     else:
         return(row)
     
-    #   To be used elsewhere
+    #   Fun that searches by both First/Last name & ID. Using this function in a different file but its best organized here.
 def pick_employee_by_both(first_name: str, last_name: str, id_num: int):
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
@@ -68,6 +73,23 @@ def pick_employee_by_both(first_name: str, last_name: str, id_num: int):
     
 #   EDIT func (This is our main piece of edit employee code you can stop looking now)
 def edit_employee_info(row):
+    """
+    Takes a DB lookup result (or -1). If an employee is found, prints current values and
+    prompts the user to transform information. Blank input keeps existing values.
+        Validations:
+        - Rank accepts lg, sg, lt, sl or full rank strings
+        - DatePromoted must be MM/DD/YYYY for ranked employees (non-lifeguard)
+        - EvaluationScore must be 1-5
+        - CanSchedule is True/False (t/f)
+    If at least one field changed the user is asked to confirm before updating the DB
+
+    Parameters:
+        row (list[tuple] | int):
+            The result from pick_employee_* functions (list of tuples) or -1 if not found
+
+    Returns:
+        None
+    """
     did_anything_change = False
     if row == -1:
         print("No employee with this infromation")

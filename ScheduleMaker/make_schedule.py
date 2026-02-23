@@ -7,6 +7,12 @@ from . import clear_screen, main_menu
 
 from .db import DB_PATH, ensure_db_dir
 
+"""
+Description:
+    Builds a two-week lifeguard schedule for Town of Hempstead ocean beaches
+    
+"""
+
 class Day(Enum):
     MON = 0
     TUE = 1
@@ -19,6 +25,17 @@ class Day(Enum):
 #------------------------Get beach/employee info into dicts-----------------------
 #   This func is to get all relevent employee info and store it in a dictionary
 def call_employee_info_to_store_in_dict() -> dict:
+    """
+    Load all schedulable employees from the database and store them in a dictionary keyed by EmployeeID
+
+    Parameters:
+        None
+
+    Returns:
+        dict[int, dict]:
+            A dictionary keyed by EmployeeID. Each value contains fields like FirstName, LastName,
+            EmployeeRank, DatePromoted, EvaluationScore, CanSchedule, LastBeach, and DaysAssigned.
+    """
     with sqlite3.connect(str(DB_PATH)) as con:
         cur = con.cursor()
         cur.execute("""SELECT EmployeeID, FirstName, LastName, EmployeeRank, DatePromoted, EvaluationScore, CanSchedule, LastBeach
@@ -49,6 +66,16 @@ def call_employee_info_to_store_in_dict() -> dict:
 
 #   This func is to get all relevent beach info and store it in a dictionary
 def call_beach_info_to_store_in_dict() -> dict:
+    """
+    Load all beaches from the database and store them in a dictionary keyed by BeachID
+
+    Parameters:
+        None
+
+    Returns:
+        dict[int, dict]:
+            A dict keyed by BeachID. Each value contains BeachName, BeachSize, BeachActivity, and BeachOpen
+    """
     with sqlite3.connect(str(DB_PATH)) as con:
         cur = con.cursor()
         cur.execute("""SELECT BeachID, BeachName, BeachSize, BeachActivity, BeachOpen
@@ -73,6 +100,21 @@ def call_beach_info_to_store_in_dict() -> dict:
 
 #   Takes our beach_by_id dict which contains all info stored in DB and alters it to now be a dict of a dict and store lifeguards in
 def build_schedule_buckets(beach_by_id: dict[int, dict]) -> dict[int, dict]:
+    """
+    Convert the raw beach dictionary into scheduling "buckets" for open beaches only
+
+    Each bucket contains the beach data plus:
+      - Required: an int derived from BeachSize
+      - Assigned: a list of EmployeeIDs assigned to that beach
+
+    Parameters:
+        beach_by_id (dict[int, dict]):
+            Dict of beaches keyed by BeachID (as returned by call_beach_info_to_store_in_dict)
+
+    Returns:
+        dict[int, dict]:
+            Dict keyed by BeachID containing scheduling buckets for beaches where BeachOpen is true
+    """
     schedule_by_beach: dict[int, dict] = {}
 
     for beach_id, b_open in beach_by_id.items():
@@ -108,6 +150,18 @@ def size_to_required(size: str) -> int:
 #   Will assign employees to beahces in their own dict for ease of reading
 #   ROUND ROBIN for random/ make sure each beach gets a SL before one gets one again
 def assign_senior_lieutenants_to_beaches(senior_lieutenants: list[dict], schedule_by_beach: dict[int, dict],):
+    """
+    Assign Senior Lieutenants to large beaches using a randomized round-robin distribution
+
+    Parameters:
+        senior_lieutenants (list[dict]):
+            List of employee dicts (each must include "EmployeeID") with rank "senior lieutenant".
+        schedule_by_beach (dict[int, dict]):
+            Scheduling buckets keyed by BeachID. This function mutates each beachs "Assigned" list
+
+    Returns:
+        None
+    """
     large_beaches = []
     for beach_id, beach in schedule_by_beach.items():
         if beach["BeachSize"] == "large":
@@ -125,13 +179,22 @@ def assign_senior_lieutenants_to_beaches(senior_lieutenants: list[dict], schedul
         sl_idx += 1
 
 #   Asign a lieutenant to beach
-"""
-    First add a lieutenant to each large beach while lieutenant != 0
-    if lieutenant != 0 once set to large beachs add single lieutanent to medium beach
-    if lieutenant != 0 once set to large/ medium beaches once set remaining lieutenants to large beaches
-    -being sure to set to one beach each before setting a second
-"""
 def assign_lieutenants_to_beaches(lieutenants: list[dict], schedule_by_beach: dict[int, dict]):
+    """
+    Assign Lieutenants to beaches in three phases:
+      1) One Lieutenant to each large beach
+      2) One Lieutenant to each medium beach
+      3) Remaining Lieutenants assigned to large beaches via round-robin
+
+    Parameters:
+        lieutenants (list[dict]):
+            List of employee dicts (each must include "EmployeeID") with rank "lieutenant"
+        schedule_by_beach (dict[int, dict]):
+            Scheduling buckets keyed by BeachID. This function mutates each beachs "Assigned" list
+
+    Returns:
+        None
+    """
     #   collect beaches by size
     large_beaches = []
     medium_beaches = []
@@ -180,15 +243,25 @@ def assign_lieutenants_to_beaches(lieutenants: list[dict], schedule_by_beach: di
         beach["Assigned"].append(lieutenants[li_idx]["EmployeeID"])
         li_idx += 1
     
-    #   Assign Senior Guards to beaches
-    """
-    Step one & step two are the same as lieutenants
-    First assign Senior guards to medium beach while senior guards != 0
-    if senior guard != 0 assign single senior guard to small beach
-    Now check if medium beach has lieutenant and if it DOESNT then add another senior guard to medium beach
-        else senior guard != 0 & single senior guard set to medium beach/small beach assign senior guard to another small beach while senior guard != 0
-    """
+#   Assign Senior Guards to beaches
 def assign_senior_guards_to_beaches(senior_guards: list[dict], schedule_by_beach: dict[int, dict], lieutenant_ids: set[int],):   #    Get IDs of lieutenants that exist in your schedule pool. Get it. Lifeguard joke. Ha.
+    """
+    Assign Senior Guards to beaches with preference rules:
+      1) One Senior Guard to each medium beach
+      2) One Senior Guard to each small beach
+      3) Remaining Senior Guards assigned to small beaches that do NOT already have a Lieutenant
+
+    Parameters:
+        senior_guards (list[dict]):
+            List of employee dicts (each must include "EmployeeID") with rank "senior guard"
+        schedule_by_beach (dict[int, dict]):
+            Scheduling buckets keyed by BeachID. This function mutates each beachs "Assigned" list
+        lieutenant_ids (set[int]):
+            Set of EmployeeIDs for Lieutenants already assigned (used to see if a beach has a Lieutenant)
+
+    Returns:
+        None
+    """
     medium_beaches = []
     small_beaches = []
 
@@ -260,6 +333,22 @@ def required_lifeguards_for_size(size: str) -> int:
 
 #   Asign a lifeguard to beach
 def assign_lifeguard_to_beaches(lifeguards: list[dict], schedule_by_beach: dict[int, dict],):
+    """
+    Assign Lifeguards across all scheduled beaches using a randomized round-robin approach
+    For each visited beach attempts to assign:
+      - 3 lifeguards to large beaches
+      - 2 lifeguards to medium beaches
+      - 1 lifeguard to small beaches
+
+    Parameters:
+        lifeguards (list[dict]):
+            List of employee dicts (each must include "EmployeeID") with rank "lifeguard"
+        schedule_by_beach (dict[int, dict]):
+            Scheduling buckets keyed by BeachID. This function mutates each beach's "Assigned" list
+
+    Returns:
+        None
+    """
     if not lifeguards:
         return
     if not schedule_by_beach:
@@ -302,6 +391,20 @@ def assign_lifeguard_to_beaches(lifeguards: list[dict], schedule_by_beach: dict[
 
 #   Will assign two days off and add it to beach_bucket_dict["Assigned"] section
 def assign_days_off(schedule_by_beach: dict[int, dict], emp_dict: dict[int, dict]):
+    """
+    Assign two unique days off (day enum values) to each employee assigned to each beach
+
+    Days are drawn from a per-beach pool of all 7 days. Selected days are removed so that assignments don't repeat until the pool resets. Meaning a round-robin approach
+
+    Parameters:
+        schedule_by_beach (dict[int, dict]):
+            Scheduling buckets keyed by BeachID containing "Assigned" employee IDs
+        emp_dict (dict[int, dict]):
+            Employees keyed by EmployeeID. This function mutates each employees "DaysAssigned" field
+
+    Returns:
+        None
+    """
     for beach_id, beach in schedule_by_beach.items():
         day_pool = list(Day)
 
@@ -384,6 +487,22 @@ def get_emp_rank(emp: dict) -> str:
 
 #   Logic that creates actueal schedule
 def schedule_emp_logic():
+    """
+    Execute the schedule generation workflow:
+      - Load employees and beaches
+      - Build schedule buckets for open beaches
+      - Split employees by rank
+      - Assign ranks to beaches
+      - Assign days off
+      - Print the schedule
+      - Save the schedule to the database if wanted
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
     #   Get each dict for useage
     emp_dict = call_employee_info_to_store_in_dict()
     beach_dict = call_beach_info_to_store_in_dict()
@@ -487,25 +606,23 @@ def get_pay_period_prompt():
 
 def save_schedule_to_db(schedule_by_beach: dict[int,dict], emp_dict: dict[int,dict],):
     """
-    ScheduleID INTEGER PRIMARY KEY AUTOINCREMENT,
-    SchedulePeriodID INTEGER NOT NULL,
-    SchedulePeriod TEXT NOT NULL,
-    BeachID INTEGER NOT NULL,
-    EmpID INTEGER NOT NULL,
-    EmpDaysOff TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    BeachName TEXT NOT NULL,
-    FirstLastName TEXT NOT NULL,
-    EmpRank TEXT NOT NULL
+    Persist the schedule into the Schedules table
 
+    This function:
+      - Determines the next SchedulePeriodID (auto-increment logic in Python)
+      - Suggests the next pay period based on the previous stored period (if present)
+      - Prompts the user to confirm or override the pay period
+      - Inserts one row per (beach, employee) assignment including days off and helper text fields
 
-    get set sechdulePeriodID here
-    for loop where we connect to DB 
-        get each piece of data
-        set it to db to be saved
+    Parameters:
+        schedule_by_beach (dict[int, dict]):
+            Scheduling buckets keyed by BeachID containing assigned EmployeeIDs
+        emp_dict (dict[int, dict]):
+            Employees keyed by EmployeeID containing name, rank, and DaysAssigned
+
+    Returns:
+        None
     """
-    #   Gets last SchedulePeriodID/ SchedulePeriod for auto increment
-    #   Also used to check if user wants to enter new pay period (Check if its null then get first set one. else prompt user if they want to use)
     sp_id_db = get_last_schedule_period() #    Gets SchedulePeriodID & SchedulePeriod
     sp_id, sp = sp_id_db
     if sp_id != None:
@@ -565,8 +682,6 @@ def save_schedule_to_db(schedule_by_beach: dict[int,dict], emp_dict: dict[int,di
                             """, (sp_id, sp, beach_id, emp_id, days_off_text, beach_name_text, first_last_text, emp_rank))
     con.commit()
     print(f"Schedule saved under schedule period ID: {sp_id}")
-
-
 
 
 def menu_options():

@@ -5,6 +5,10 @@ from .. import clear_screen, main_menu
 
 from ..db import DB_PATH, ensure_db_dir
 
+"""
+Provides a simple console UI for viewing the current Beach table and displays each beach ID, beach name, beach size, and whether or not the beach is open
+"""
+
 def viewBeachList():
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()

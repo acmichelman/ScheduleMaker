@@ -6,10 +6,9 @@ from .. import clear_screen, main_menu
 
 from ..db import DB_PATH, ensure_db_dir
 
-logging.basicConfig(
-    filename='logging_info.log', 
-    level = logging.DEBUG,
-    format='%(asctime)s:%(levelname)s:%(filename)s:%(funcName)s:%(message)s')
+"""
+Provides the console UI and database helper for ingesting a new beach to the Beaches table
+"""
 
 # SQL Connect
 def add_beach_to_db(beach_name: str, beach_size: str, beach_activity: int, beach_open: str) -> bool:
@@ -43,7 +42,20 @@ def menu_options():
     print("Add[1] \nBack[2]")
 
 def add_beach():
-    #   Add a Beach to the system.
+    """
+    Display the Add Beach page and run its interactive menu loop
+    Prompts the user to enter:
+        - BeachName
+        - BeachSize (accepts s/m/l or small/medium/large)
+        - BeachActivity (integer 1-5)
+        - BeachOpen (accepts t/f or true/false)
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
     clear_screen.clear_screen()
     print("Welcome to Add Beach page")
     menu_options()

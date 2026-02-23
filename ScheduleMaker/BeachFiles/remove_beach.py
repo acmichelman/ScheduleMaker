@@ -6,7 +6,11 @@ from . import edit_beach
 
 from ..db import DB_PATH, ensure_db_dir
 
+"""
+Provides the console UI and database helpers for removing a beach from the Beaches table
+"""
 def remove_beach_from_db(beach_name:str) -> bool:
+    #   Delete a beach record from the Beaches table by beach name
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
         cur.execute("""DELETE FROM Beaches
@@ -30,6 +34,7 @@ def menu_options():
     print("Remove[1] \nBack[2]")
 
 def removing_functionallity():
+    #    Prompt the user for a beach name. Confirm the match. Remove the beach from the DB
     print("Please enter beach name you wish to remove: ")
     beach_name_ans = input().strip()
 

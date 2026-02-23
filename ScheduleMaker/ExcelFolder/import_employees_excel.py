@@ -9,8 +9,25 @@ from .. import clear_screen, main_menu
 from ..db import DB_PATH, ensure_db_dir
 EXCEL_DIR = Path(__file__).resolve().parent  #  ExcelFolder/
 
+"""
+Description:
+    Ingests employee data from the newest Excel (.xlsx) file found in the ExcelFolder
+    directory and inserts records into the Employees table from the SQLite database
+"""
+
 #   Will use this to prompt the user if correct file was loaded
 def find_newest_excel_file():
+    """
+    Find and load the newest .xlsx file in EXCEL_DIR and return its active worksheet
+
+    Parameters:
+        None
+
+    Returns:
+        openpyxl.worksheet.worksheet.Worksheet | int:
+            Returns the active worksheet for the newest Excel file
+            Returns -1 if no .xlsx files are found in EXCEL_DIR
+    """
     #   Get newest .xlsx file in ExcelFolder
     excel_files = sorted(EXCEL_DIR.glob("*.xlsx"), key=lambda p: p.stat().st_mtime, reverse=True)
     if not excel_files:
@@ -27,8 +44,18 @@ def find_newest_excel_file():
     ws = wb.active
     return ws
 
-#   RANK lg, sg, lt, sl
 def normalize_rank(value) -> str:
+    """
+    Normalize employee rank values to a consistent set of lowercase strings. (ex, "lg", "sg", "lt", "sl" to "lifeguard", "senior guard", "lieutenant", "senior lieutenant")
+
+    Parameters:
+        value (Any):
+            Raw rank value from Excel (string-like)
+
+    Returns:
+        str:
+            Normalized rank string.
+    """
     ans = str(value).strip().lower()
     mapping = {
         "lg": "lifeguard",
@@ -42,11 +69,21 @@ def normalize_rank(value) -> str:
     } 
     return mapping.get(ans, ans)
 
-#   DATE MM/DD/YYYY
 def normalize_date(value) -> str:
+    """
+    Normalize a date value into MM/DD/YYYY text (or 'NA')
+
+    Parameters:
+        value (Any):
+            Raw DatePromoted value from Excel
+
+    Returns:
+        str:
+            A date formatted as "MM/DD/YYYY" or "NA" when empty
+    """
     #Should take one instance/ colum-row at a time
     """
-    Accepts:
+    !!!!Accepts!!!!:
       - Excel dates (datetime)
       - strings like MM/DD/YYYY
       - blank/None -> "NA"
@@ -81,7 +118,18 @@ def normalize_eval(value) -> str:
 
 #   LOAD INTO DB
 def load_excel_into_db(ws):
+    """
+    Import employee rows from an Excel worksheet into the Employees database table by validating FirstName, LastName
+    EmployeeRank. Iterate over rows (starting at row 2) to clean/ normalize data, skip over missing fields, and insert data.
+    Also tracks inserted/skipped counts to collects errors
 
+    Parameters:
+        ws (openpyxl.worksheet.worksheet.Worksheet):
+            Worksheet containing employee data with a header row in row 1
+
+    Returns:
+        None
+    """
     #   Headers are our cells
     headers = [cell.value for cell in ws[1]]
     headers = [str(h).strip() if h is not None else "" for h in headers]

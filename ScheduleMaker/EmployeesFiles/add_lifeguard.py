@@ -8,16 +8,13 @@ from .. import clear_screen, main_menu
 
 from ..db import DB_PATH, ensure_db_dir
 
-
-logging.basicConfig(
-    filename='logging_info.log', 
-    level = logging.DEBUG,
-    format='%(asctime)s:%(levelname)s:%(filename)s:%(funcName)s:%(message)s')
+"""
+Provides the console UI and database helper for ingesting employee (lifeguard) data into the Employees table
+"""
 
 #   SQL Connect
 def add_lifeguard_to_db(first_name: str, last_name: str, rank: str, date_promoted: str, eval_score: int, can_schedule: int) -> bool:
-
-    #   Returns True if a new row was inserted, False if the name already existed.
+    #   Insert a new employee into the Employees table avoiding duplicates by name
     
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
@@ -29,10 +26,7 @@ def add_lifeguard_to_db(first_name: str, last_name: str, rank: str, date_promote
                     """, (first_name, last_name, rank, date_promoted, eval_score, can_schedule))
         con.commit()
         if cur.rowcount == 1:
-            return -1 # SQLite Autoincrement will assign a # between 1 - 9223372036854775807. So -1 will be our indication that its a new value cause 0 is if its false.
-            #return cur.rowcount # 1 meaning true dumb ass
-        #elif cur.rowcount == 0: #!!! It will return 0 if it doesnt add employee or find a match. !!!
-        #    return 0
+            return -1 # SQLite Autoincrement will assign a # between 1 - 9223372036854775807. So -1 will be our indication that its a new value cause 0 is if its false
 
         #   Checks if employee has already been added
         else:
@@ -42,14 +36,27 @@ def add_lifeguard_to_db(first_name: str, last_name: str, rank: str, date_promote
                         """, (first_name, last_name))
             row = cur.fetchone()
             return row
-        #   return cur.rowcount == 1 # If its True[1] then return its inserted. If False[0] if its skipped
     
 def menu_options():
     print("\nMenu Options")
     print("Add[1] \nBack[2]")
 
 def add_lifeguard():
-    #   Add a lifeguard to the system.
+    """
+    Display the Add Lifeguard page and run its interactive menu loop
+    Prompts the user to enter:
+        - First name
+        - Last name
+        - Rank (accepts LG,SG,LT,SL or full rank text)
+        - Date promoted (MM/DD/YYYY) for promoted ranks. "NA" for lifeguards
+        - Evaluation score (1-5 default guidance is 4)
+        - CanSchedule (True/False)
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
     clear_screen.clear_screen()
     print("Welcome to Add Lifeguard page")
     menu_options()
@@ -90,7 +97,6 @@ def add_lifeguard():
                 else:
                     print("LG for unranked lifeguard, SG for senior guard, LT for lieutenant, SL for senior lieutenant \nPlease enter a valid rank.: ")
             
-            #   This way is probally skitzo but fuck it we ballin
             #   datetime.striptime should strip ans into proper MM/DD/YYY form to be stored. Need to try except to do but could change to if for formatting sake
             if rank != "lifeguard":
                 print("Date promoted (MM/DD/YYYY): ")

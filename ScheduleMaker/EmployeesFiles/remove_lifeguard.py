@@ -5,9 +5,12 @@ from .. import clear_screen, main_menu
 from . import lifeguard_list, edit_employees  #   same-folder imports
 
 from ..db import DB_PATH, ensure_db_dir
+"""
+Provides the menu and database logic for removing an employee (lifeguard) from the system
+"""
 
 def remove_lifeguard_from_db(first_name: str, last_name: str, emp_id: int) -> bool:
-    
+    #   Executes DELETE statement when called
     with sqlite3.connect(DB_PATH) as con:
         cur = con.cursor()
         cur.execute("""DELETE FROM Employees
@@ -38,11 +41,23 @@ def validate_info(row, we_getting_a_id):
     elif we_getting_a_id == 2:
         return 
 
-def menu_options():
-    print("\nMenu Options")
-    print("Remove[1]\nView Employees[2]\nBack[3]")
-
 def removing_functionallity():
+    """
+    Prompt the user for employee identifying information and remove the selected employee.
+        1) First+Last only:
+            - looks up employee by name to retrieve EmployeeID, then confirms deletion
+        2) EmployeeID only:
+            - looks up employee by ID to retrieve First+Last, then confirms deletion
+        3) First+Last+EmployeeID:
+            - looks up employee by exact match, then confirms deletion
+        After confirmation, calls remove_lifeguard_from_db and prints the result
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
     print("Please enter employee's first name you wish to remove: ")
     first_name_ans = input().strip()
     print("Please enter employee's last name you wish to remove: ")
@@ -127,6 +142,10 @@ def removing_functionallity():
         print(f"Removed {ans} employee named {first_name_ans} {last_name_ans} {emp_id_ans}.")
     else:
         print(f"No employee found named {first_name_ans} {last_name_ans} {emp_id_ans}.")
+
+def menu_options():
+    print("\nMenu Options")
+    print("Remove[1]\nView Employees[2]\nBack[3]")
 
 def remove_lifeguard():
     """Remove a lifeguard from the system."""
