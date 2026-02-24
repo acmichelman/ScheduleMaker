@@ -19,6 +19,7 @@ A schedule maker for Town of Hempstead Ocean Lifeguards designed to account for 
 
 ## Requirements
 - Python **3.13.1**
+- PIP
 - Dependencies: see `requirements.txt` (currently `openpyxl`)
 
 ## Database
